@@ -1,0 +1,6 @@
+{
+  "name": "KasirKu Digital - POS Restoran F&B",
+  "description": "Sistem POS Restoran F&B modern dengan otentikasi multi-role (Owner & Kasir), manajemen shift laci kasir, pesanan Dine-In/Takeaway, cetak struk pelanggan & dapur, katalog menu HPP, dan laporan laba bersih.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
