@@ -228,21 +228,37 @@ export default function FinancialReports({ onOpenOrderDetail }) {
       </div>
 
 
-      {/* 4 Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Omzet Penjualan */}
+      {/* 5 Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {/* Omzet Penjualan (Subtotal Menu) */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-amber-300 transition-colors">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Omzet Penjualan</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Omzet Menu</span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-900 font-sans tracking-tight">
-            Rp {Number(summary.total_revenue).toLocaleString('id-ID')}
+          <div className="text-xl font-bold text-slate-900 font-sans tracking-tight">
+            Rp {Number(summary.sales_revenue ?? summary.total_revenue ?? 0).toLocaleString('id-ID')}
           </div>
-          <div className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-            <span>Dari {summary.total_orders} transaksi</span>
+          <div className="text-[11px] text-slate-500 mt-1 flex items-center gap-1">
+            <span>{summary.total_orders} transaksi</span>
+          </div>
+        </div>
+
+        {/* Biaya Layanan & Takeaway */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-orange-300 transition-colors">
+          <div className="flex items-center justify-between text-slate-500 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">Biaya Layanan</span>
+            <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center">
+              <Package className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="text-xl font-bold text-slate-900 font-sans tracking-tight">
+            Rp {Number(summary.service_charges ?? 0).toLocaleString('id-ID')}
+          </div>
+          <div className="text-[11px] text-slate-500 mt-1">
+            Layanan + Kemasan
           </div>
         </div>
 
@@ -254,45 +270,43 @@ export default function FinancialReports({ onOpenOrderDetail }) {
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-700 font-sans tracking-tight">
-            Rp {Number(summary.total_hpp).toLocaleString('id-ID')}
+          <div className="text-xl font-bold text-slate-700 font-sans tracking-tight">
+            Rp {Number(summary.total_hpp ?? 0).toLocaleString('id-ID')}
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Akumulasi harga pokok bahan
+          <div className="text-[11px] text-slate-500 mt-1">
+            Modal harga pokok
           </div>
         </div>
 
         {/* Laba Bersih Otomatis */}
         <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl text-white shadow-md shadow-emerald-500/20">
           <div className="flex items-center justify-between text-emerald-100 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Laba Bersih (Net)</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Laba Bersih</span>
             <div className="w-8 h-8 rounded-xl bg-white/20 text-white flex items-center justify-center">
               <ArrowUpRight className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold font-sans tracking-tight">
-            Rp {Number(summary.net_profit).toLocaleString('id-ID')}
+          <div className="text-xl font-bold font-sans tracking-tight">
+            Rp {Number(summary.net_profit ?? 0).toLocaleString('id-ID')}
           </div>
-          <div className="text-xs text-emerald-100 mt-1 flex items-center gap-1.5 font-medium">
+          <div className="text-[11px] text-emerald-100 mt-1 flex items-center gap-1 font-medium">
             <span>Margin: {summary.profit_margin}%</span>
-            <span>•</span>
-            <span>Omzet - HPP</span>
           </div>
         </div>
 
         {/* Rata-rata per Nota */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-blue-300 transition-colors">
           <div className="flex items-center justify-between text-slate-500 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Nilai Rata-rata Nota</span>
+            <span className="text-xs font-semibold uppercase tracking-wider">Rata-rata Nota</span>
             <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-bold text-slate-900 font-sans tracking-tight">
-            Rp {Number(summary.average_order_value).toLocaleString('id-ID')}
+          <div className="text-xl font-bold text-slate-900 font-sans tracking-tight">
+            Rp {Number(summary.average_order_value ?? 0).toLocaleString('id-ID')}
           </div>
-          <div className="text-xs text-slate-500 mt-1">
-            Average basket size pelanggan
+          <div className="text-[11px] text-slate-500 mt-1">
+            Avg basket size
           </div>
         </div>
       </div>
@@ -423,7 +437,6 @@ export default function FinancialReports({ onOpenOrderDetail }) {
           <p className="text-xs text-slate-500">Termasuk nama pembuat transaksi (Kasir/Owner), tipe pesanan, dan laba kotor</p>
         </div>
 
-
         {recent_orders.length === 0 ? (
           <div className="py-12 text-center text-slate-400 border border-dashed border-slate-200 rounded-xl">
             <FileText className="w-8 h-8 mx-auto text-slate-300 mb-2" />
@@ -443,6 +456,7 @@ export default function FinancialReports({ onOpenOrderDetail }) {
                     <th className="py-3 px-3">Kasir</th>
                     <th className="py-3 px-3">Pelanggan</th>
                     <th className="py-3 px-3">Layanan</th>
+                    <th className="py-3 px-3 text-right">Biaya Layanan</th>
                     <th className="py-3 px-3">Metode</th>
                     <th className="py-3 px-3 text-right">Total Tagihan</th>
                     <th className="py-3 px-3 text-right">Laba Bersih</th>
@@ -450,57 +464,64 @@ export default function FinancialReports({ onOpenOrderDetail }) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {recent_orders.map((ord) => (
-                    <tr key={ord.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3 px-3 font-mono font-semibold text-slate-900">
-                        {ord.invoice_number}
-                      </td>
-                      <td className="py-3 px-3 text-slate-500">
-                        <div>{new Date(ord.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</div>
-                        <div className="text-[10px] text-slate-400">{new Date(ord.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="font-semibold text-slate-800">{ord.cashier_name}</span>
-                      </td>
-                      <td className="py-3 px-3 text-slate-700">
-                        {ord.customer_name}
-                        {ord.table_number && (
-                          <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
-                            Meja {ord.table_number}
+                  {recent_orders.map((ord) => {
+                    const feeSum = (Number(ord.service_fee) || 0) + (Number(ord.packaging_fee) || 0);
+                    return (
+                      <tr key={ord.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="py-3 px-3 font-mono font-semibold text-slate-900">
+                          {ord.invoice_number}
+                        </td>
+                        <td className="py-3 px-3 text-slate-500">
+                          <div>{new Date(ord.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}</div>
+                          <div className="text-[10px] text-slate-400">{new Date(ord.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div>
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className="font-semibold text-slate-800">{ord.cashier_name}</span>
+                        </td>
+                        <td className="py-3 px-3 text-slate-700">
+                          {ord.customer_name}
+                          {ord.table_number && (
+                            <span className="ml-1 text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                              Meja {ord.table_number}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className={`px-2 py-0.5 rounded-full font-semibold text-[10px] ${
+                            ord.order_type === 'dine_in'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-orange-100 text-orange-800'
+                          }`}>
+                            {ord.order_type === 'dine_in' ? 'Dine-In' : 'Takeaway'}
                           </span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className={`px-2 py-0.5 rounded-full font-semibold text-[10px] ${
-                          ord.order_type === 'dine_in'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-orange-100 text-orange-800'
-                        }`}>
-                          {ord.order_type === 'dine_in' ? 'Dine-In' : 'Takeaway'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 uppercase font-semibold text-slate-600">
-                        {ord.payment_method}
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-slate-900">
-                        Rp {Number(ord.total_amount).toLocaleString('id-ID')}
-                      </td>
-                      <td className="py-3 px-3 text-right font-bold text-emerald-600">
-                        +Rp {Number(ord.gross_profit).toLocaleString('id-ID')}
-                      </td>
-                      <td className="py-3 px-3 text-center">
-                        <button
-                          onClick={() => onOpenOrderDetail(ord.id)}
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition-colors cursor-pointer"
-                        >
-                          Detail & Struk
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="py-3 px-3 text-right font-semibold text-slate-700">
+                          {feeSum > 0 ? `+Rp ${feeSum.toLocaleString('id-ID')}` : '-'}
+                        </td>
+                        <td className="py-3 px-3 uppercase font-semibold text-slate-600">
+                          {ord.payment_method}
+                        </td>
+                        <td className="py-3 px-3 text-right font-bold text-slate-900">
+                          Rp {Number(ord.total_amount).toLocaleString('id-ID')}
+                        </td>
+                        <td className="py-3 px-3 text-right font-bold text-emerald-600">
+                          +Rp {Number(ord.gross_profit).toLocaleString('id-ID')}
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <button
+                            onClick={() => onOpenOrderDetail(ord.id)}
+                            className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition-colors cursor-pointer"
+                          >
+                            Detail & Struk
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+
 
             {/* Pagination Controls */}
             {pagination && pagination.last_page > 1 && (

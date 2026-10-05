@@ -33,9 +33,11 @@ class ReportController extends Controller
 
         $orders = (clone $baseQuery)->get();
 
-        $totalRevenue = (float) $orders->sum('total_amount');
+        $salesRevenue = (float) $orders->sum('subtotal');
+        $serviceCharges = (float) $orders->sum('service_fee') + (float) $orders->sum('packaging_fee');
+        $totalGrossIncome = $salesRevenue + $serviceCharges;
         $totalHpp = (float) $orders->sum('total_cost_price');
-        $netProfit = $totalRevenue - $totalHpp;
+        $netProfit = $totalGrossIncome - $totalHpp;
         $totalOrders = $orders->count();
 
         // Top Selling Products in Date Range
@@ -77,15 +79,16 @@ class ReportController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
-
         return response()->json([
             'summary' => [
-                'total_revenue'       => $totalRevenue,
+                'sales_revenue'       => $salesRevenue,
+                'service_charges'     => $serviceCharges,
+                'total_gross_income'  => $totalGrossIncome,
                 'total_hpp'           => $totalHpp,
                 'net_profit'          => $netProfit,
-                'profit_margin'       => $totalRevenue > 0 ? round(($netProfit / $totalRevenue) * 100) : 0,
+                'profit_margin'       => $totalGrossIncome > 0 ? round(($netProfit / $totalGrossIncome) * 100) : 0,
                 'total_orders'        => $totalOrders,
-                'average_order_value' => $totalOrders > 0 ? round($totalRevenue / $totalOrders) : 0,
+                'average_order_value' => $totalOrders > 0 ? round($totalGrossIncome / $totalOrders) : 0,
                 'start_date'          => $startDate,
                 'end_date'            => $endDate,
             ],
@@ -109,6 +112,7 @@ class ReportController extends Controller
                 'to'           => $paginatedOrders->lastItem(),
             ],
         ]);
+
     }
 
 }
