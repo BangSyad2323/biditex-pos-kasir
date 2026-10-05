@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  BarChart3, 
-  UtensilsCrossed, 
-  Users, 
-  Settings, 
-  Clock, 
+import {
+  BarChart3,
+  UtensilsCrossed,
+  Users,
+  Settings,
+  Clock,
   Laptop,
   ChevronRight
 } from 'lucide-react';
@@ -40,11 +40,10 @@ export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail, activeTab
               <button
                 key={item.id}
                 onClick={() => changeTab(item.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  isActive
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${isActive
                     ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 <span>{item.label}</span>
