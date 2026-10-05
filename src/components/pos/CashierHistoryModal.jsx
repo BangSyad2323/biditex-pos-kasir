@@ -2,15 +2,33 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { History, X, Printer, ChefHat, Eye, RefreshCw } from 'lucide-react';
 
-export default function CashierHistoryModal({ isOpen, onClose, onSelectReceipt, onSelectKitchen }) {
+export default function CashierHistoryModal({ isOpen, onClose, onSelectReceipt, onSelectKitchen, activeShift, user }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/orders');
-      setOrders(res.data.data || []);
+      const params = { active_shift_only: 1 };
+      if (activeShift?.id) {
+        params.shift_id = activeShift.id;
+      }
+      if (user?.id) {
+        params.user_id = user.id;
+      }
+
+      const res = await api.get('/orders', { params });
+      let data = res.data.data || [];
+
+      // Filter ketat berdasarkan User ID kasir yang login dan Shift ID aktif
+      if (user?.id) {
+        data = data.filter((ord) => Number(ord.user_id) === Number(user.id));
+      }
+      if (activeShift?.id) {
+        data = data.filter((ord) => Number(ord.shift_id) === Number(activeShift.id));
+      }
+
+      setOrders(data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -22,7 +40,7 @@ export default function CashierHistoryModal({ isOpen, onClose, onSelectReceipt, 
     if (isOpen) {
       fetchOrders();
     }
-  }, [isOpen]);
+  }, [isOpen, activeShift?.id, user?.id]);
 
   if (!isOpen) return null;
 

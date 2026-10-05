@@ -9,7 +9,38 @@ export default function KitchenReceiptModal({ isOpen, onClose, order }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4" id="kitchen-receipt-modal">
+      <style>{`
+        @media print {
+          html, body {
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          body * {
+            visibility: hidden !important;
+          }
+          #kitchen-receipt-modal,
+          #kitchen-receipt-modal #kitchen-ticket,
+          #kitchen-receipt-modal #kitchen-ticket * {
+            visibility: visible !important;
+          }
+          #kitchen-receipt-modal {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            background: white !important;
+            display: block !important;
+          }
+          #kitchen-receipt-modal > div {
+            box-shadow: none !important;
+            border: none !important;
+            max-height: unset !important;
+          }
+          .print\\:hidden { display: none !important; }
+        }
+      `}</style>
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Top Actions */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-amber-50/50 print:hidden">

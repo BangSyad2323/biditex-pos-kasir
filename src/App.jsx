@@ -18,16 +18,23 @@ function MainLayout() {
   const [selectedOrderDetail, setSelectedOrderDetail] = useState(null);
   const [showOrderDetailModal, setShowOrderDetailModal] = useState(false);
 
-  // Role-based automatic redirect:
+  // Role-based automatic redirect (HANYA saat pertama kali login):
   // Owner -> Redirection otomatis ke Dashboard Owner
   // Kasir -> Redirection otomatis ke Layar POS Kasir
+  // TIDAK BOLEH re-redirect saat refreshContext() dipanggil setelah transaksi,
+  // karena akan memindahkan Owner dari POS dan struk gagal dicetak.
+  const initialRedirectDone = React.useRef(false);
   useEffect(() => {
-    if (user) {
+    if (user && !initialRedirectDone.current) {
+      initialRedirectDone.current = true;
       if (user.role === 'owner') {
         setCurrentView('owner');
       } else {
         setCurrentView('pos');
       }
+    }
+    if (!user) {
+      initialRedirectDone.current = false;
     }
   }, [user]);
 
@@ -85,7 +92,7 @@ function MainLayout() {
       </main>
 
       {/* Bottom Mobile/Tablet Navigation Bar */}
-      <BottomNav 
+      <BottomNav
         currentView={currentView}
         setCurrentView={setCurrentView}
         ownerActiveTab={ownerActiveTab}

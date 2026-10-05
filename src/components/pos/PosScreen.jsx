@@ -26,6 +26,8 @@ import ShiftModal from './ShiftModal';
 import CustomerReceiptModal from './CustomerReceiptModal';
 import KitchenReceiptModal from './KitchenReceiptModal';
 import CashierHistoryModal from './CashierHistoryModal';
+import DualReceiptPrintModal from './DualReceiptPrintModal';
+
 
 export default function PosScreen() {
   const { user, tenant, settings, activeShift, setActiveShift, refreshContext, isOwner } = useAuth();
@@ -170,24 +172,26 @@ export default function PosScreen() {
   };
 
   // Calculations
-  const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const subtotal = cart.reduce((acc, item) => acc + (Number(item.price) * item.quantity), 0);
   const totalItemsCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   let serviceFee = 0;
   if (orderType === 'dine_in' && (settings?.is_dine_in_enabled ?? true)) {
+    const feeVal = Number(settings?.dine_in_fee_value) || 0;
     if (settings?.dine_in_fee_type === 'percent') {
-      serviceFee = Math.round((subtotal * (settings?.dine_in_fee_value || 0)) / 100);
+      serviceFee = Math.round((subtotal * feeVal) / 100);
     } else {
-      serviceFee = settings?.dine_in_fee_value || 0;
+      serviceFee = feeVal;
     }
   }
 
   let packagingFee = 0;
   if (orderType === 'takeaway' && (settings?.is_takeaway_enabled ?? true)) {
+    const feeVal = Number(settings?.takeaway_fee_value) || 2000;
     if (settings?.takeaway_fee_type === 'per_item') {
-      packagingFee = (settings?.takeaway_fee_value || 2000) * totalItemsCount;
+      packagingFee = feeVal * totalItemsCount;
     } else {
-      packagingFee = settings?.takeaway_fee_value || 2000; // Flat per nota
+      packagingFee = feeVal;
     }
   }
 
@@ -223,22 +227,52 @@ export default function PosScreen() {
         table_number: orderType === 'dine_in' ? tableNumber : null,
         notes: orderNotes,
         payment_method: paymentMethod,
-        cash_amount: paymentMethod === 'cash' ? parsedCash : grandTotal,
-        items: cart
+        cash_amount: Number(paymentMethod === 'cash' ? parsedCash : grandTotal) || 0,
+        items: cart.map((item) => ({
+          ...item,
+          product_id: Number(item.product_id),
+          price: Number(item.price) || 0,
+          cost_price: Number(item.cost_price) || 0,
+          quantity: Number(item.quantity) || 0
+        }))
       };
 
       const res = await api.post('/orders', payload);
-      setCompletedOrder(res.data.order);
+      const newOrder = res.data.order;
+      setCompletedOrder(newOrder);
       setShowPaymentModal(false);
-      setShowSuccessModal(true);
+
+      // 1) Reset Form State & Cart — bersihkan POS untuk transaksi berikutnya
       clearCart();
-      await refreshContext();
+      setCustomerName('');
+      setTableNumber('');
+      setOrderNotes('');
+      setCashGiven('');
+
+      // 2) Tampilkan modal sukses
+      setShowSuccessModal(true);
+
+      // 3) Auto trigger print (tunggu DualReceiptPrintModal ter-render di DOM)
+      //    PENTING: refreshContext() dipanggil SETELAH print selesai,
+      //    agar tidak memicu redirect yang meng-unmount struk.
+      setTimeout(() => {
+        const receiptEl = document.getElementById('dual-receipt-print-wrapper');
+        if (receiptEl) {
+          window.print();
+        } else {
+          setTimeout(() => { window.print(); }, 500);
+        }
+        // 4) Refresh context SETELAH print dialog selesai (tidak memicu redirect)
+        refreshContext();
+      }, 500);
+
     } catch (err) {
       alert(err.response?.data?.message || 'Gagal memproses transaksi.');
     } finally {
       setSubmittingOrder(false);
     }
   };
+
 
   // Filtered menu
   const filteredProducts = products.filter(p => {
@@ -898,6 +932,8 @@ export default function PosScreen() {
       <CashierHistoryModal
         isOpen={showHistoryModal}
         onClose={() => setShowHistoryModal(false)}
+        activeShift={activeShift}
+        user={user}
         onSelectReceipt={(ord) => {
           setCompletedOrder(ord);
           setShowCustomerReceipt(true);
@@ -907,6 +943,16 @@ export default function PosScreen() {
           setShowKitchenReceipt(true);
         }}
       />
+
+      {/* Hidden Dual Receipt Print Container (Otomatis Dipemicu saat Cetak) */}
+      <DualReceiptPrintModal
+        isOpen={!!completedOrder}
+        onClose={() => {}}
+        order={completedOrder}
+        tenant={tenant}
+        settings={settings}
+      />
     </div>
   );
 }
+

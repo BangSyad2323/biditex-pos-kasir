@@ -14,21 +14,45 @@ use App\Models\Product;
 class OrderController extends Controller
 {
     /**
-     * List Orders: Kasir only sees current day / active shift. Owner sees all.
+     * List Orders: Kasir only sees active shift & their own orders. Owner sees all or filtered.
      */
     public function index(Request $request)
     {
         $user = $request->user();
         $query = Order::where('tenant_id', $user->tenant_id)->with('items');
 
+        // Check active shift for the logged-in user
+        $activeShift = Shift::where('user_id', $user->id)
+            ->where('status', 'open')
+            ->first();
+
         if ($user->isCashier()) {
-            // Kasir: Hanya transaksi hari berjalan
-            $today = Carbon::today();
-            $query->whereDate('created_at', $today);
+            // Kasir: Terkunci murni ke User ID kasir dan ID Shift aktif
+            $query->where('user_id', $user->id);
+            if ($activeShift) {
+                $query->where('shift_id', $activeShift->id);
+            } else {
+                $query->whereDate('created_at', Carbon::today());
+            }
         } else {
-            // Owner: Filter tanggal opsional
-            if ($request->filled('date')) {
-                $query->whereDate('created_at', $request->date);
+            // Owner / Non-cashier
+            if ($request->boolean('active_shift_only')) {
+                $query->where('user_id', $user->id);
+                if ($activeShift) {
+                    $query->where('shift_id', $activeShift->id);
+                } else {
+                    $query->whereDate('created_at', Carbon::today());
+                }
+            } else {
+                if ($request->filled('shift_id')) {
+                    $query->where('shift_id', $request->shift_id);
+                }
+                if ($request->filled('user_id')) {
+                    $query->where('user_id', $request->user_id);
+                }
+                if ($request->filled('date')) {
+                    $query->whereDate('created_at', $request->date);
+                }
             }
         }
 
