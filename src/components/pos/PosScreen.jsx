@@ -410,7 +410,7 @@ export default function PosScreen() {
         </div>
 
         {/* RIGHT: Order Cart & Billing Sidebar */}
-        <div className="lg:col-span-5 xl:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-md p-4 sm:p-5 flex flex-col min-h-[580px] sticky top-20">
+        <div className="lg:col-span-5 xl:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-md p-4 sm:p-5 flex flex-col min-h-auto lg:min-h-[580px] lg:sticky lg:top-20">
           {/* Order Type Toggle: Dine-In vs Takeaway */}
           <div className="mb-4">
             <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">

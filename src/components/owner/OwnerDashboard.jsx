@@ -14,8 +14,10 @@ import CashierManagement from './CashierManagement';
 import StoreSettings from './StoreSettings';
 import ShiftHistory from './ShiftHistory';
 
-export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail }) {
-  const [activeTab, setActiveTab] = useState('reports');
+export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail, activeTab = 'reports', setActiveTab }) {
+  const [internalTab, setInternalTab] = useState('reports');
+  const currentTab = setActiveTab ? activeTab : internalTab;
+  const changeTab = setActiveTab || setInternalTab;
 
   const navItems = [
     { id: 'reports', label: 'Laporan & Laba Bersih', icon: BarChart3 },
@@ -27,17 +29,17 @@ export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail }) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-      {/* Top Welcome & Navigation Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+      {/* Top Welcome & Navigation Bar (Desktop Only) */}
+      <div className="hidden md:flex bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex-col md:flex-row md:items-center md:justify-between gap-4">
+        {/* Navigation Tabs (Desktop) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none w-full">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+            const isActive = currentTab === item.id;
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => changeTab(item.id)}
                 className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
                     ? 'bg-amber-500 text-white shadow-md shadow-amber-500/20'
@@ -50,18 +52,18 @@ export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail }) {
             );
           })}
         </div>
-
-       
       </div>
+
 
       {/* Main Tab Content */}
       <div className="transition-all duration-200">
-        {activeTab === 'reports' && <FinancialReports onOpenOrderDetail={onOpenOrderDetail} />}
-        {activeTab === 'menu' && <MenuManagement />}
-        {activeTab === 'cashiers' && <CashierManagement />}
-        {activeTab === 'settings' && <StoreSettings />}
-        {activeTab === 'shifts' && <ShiftHistory />}
+        {currentTab === 'reports' && <FinancialReports onOpenOrderDetail={onOpenOrderDetail} />}
+        {currentTab === 'menu' && <MenuManagement />}
+        {currentTab === 'cashiers' && <CashierManagement />}
+        {currentTab === 'settings' && <StoreSettings />}
+        {currentTab === 'shifts' && <ShiftHistory />}
       </div>
     </div>
   );
 }
+

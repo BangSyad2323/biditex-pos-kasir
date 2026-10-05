@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
 import OwnerDashboard from './components/owner/OwnerDashboard';
 import PosScreen from './components/pos/PosScreen';
 import ShiftModal from './components/pos/ShiftModal';
@@ -11,6 +12,7 @@ import api from './services/api';
 function MainLayout() {
   const { user, loading, isOwner, tenant, settings } = useAuth();
   const [currentView, setCurrentView] = useState('pos'); // 'owner' | 'pos'
+  const [ownerActiveTab, setOwnerActiveTab] = useState('reports');
   const [showShiftModal, setShowShiftModal] = useState(false);
   const [showArchitectureModal, setShowArchitectureModal] = useState(false);
   const [selectedOrderDetail, setSelectedOrderDetail] = useState(null);
@@ -59,7 +61,7 @@ function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-100/70 text-slate-900 font-sans flex flex-col pb-16 md:pb-0">
       {/* Top Navbar */}
       <Navbar
         currentView={currentView}
@@ -74,19 +76,27 @@ function MainLayout() {
           <OwnerDashboard
             onOpenPOS={() => setCurrentView('pos')}
             onOpenOrderDetail={handleOpenOrderDetail}
+            activeTab={ownerActiveTab}
+            setActiveTab={setOwnerActiveTab}
           />
         ) : (
           <PosScreen />
         )}
       </main>
 
+      {/* Bottom Mobile/Tablet Navigation Bar */}
+      <BottomNav 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        ownerActiveTab={ownerActiveTab}
+        setOwnerActiveTab={setOwnerActiveTab}
+      />
+
       {/* Shift Modal (Buka / Tutup Kasir) */}
       <ShiftModal
         isOpen={showShiftModal}
         onClose={() => setShowShiftModal(false)}
       />
-
-     
 
       {/* Order Detail & Receipt Modal for Reports */}
       {showOrderDetailModal && selectedOrderDetail && (
@@ -101,6 +111,7 @@ function MainLayout() {
     </div>
   );
 }
+
 
 export default function App() {
   return (

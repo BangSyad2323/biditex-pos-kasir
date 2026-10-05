@@ -6,15 +6,12 @@ import {
   Store, 
   ShieldCheck, 
   UserCheck, 
-  Clock, 
-  Terminal, 
   LayoutDashboard, 
-  Laptop,
-  Coins
+  Laptop
 } from 'lucide-react';
 
-export default function Navbar({ currentView, setCurrentView}) {
-  const { user, tenant, activeShift, logout, isOwner } = useAuth();
+export default function Navbar({ currentView, setCurrentView }) {
+  const { user, tenant, logout, isOwner } = useAuth();
 
   const handleLogout = async () => {
     if (window.confirm('Apakah Anda yakin ingin keluar dari sistem?')) {
@@ -40,20 +37,21 @@ export default function Navbar({ currentView, setCurrentView}) {
                   F&B POS
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <div className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500">
                 <Store className="w-3.5 h-3.5 text-slate-400" />
                 <span className="font-medium text-slate-700">{tenant?.name || 'Restoran Berkah Nusantara'}</span>
                 <span className="text-slate-300">•</span>
                 <span>{tenant?.branch || 'Cabang Utama'}</span>
               </div>
+
             </div>
           </div>
 
-      
-
-            {/* Owner Master Access Switcher */}
+          {/* Right section container with responsive desktop view */}
+          <div className="flex items-center gap-3">
+            {/* Owner Master Access Switcher - visible on desktop (md+) */}
             {isOwner && (
-              <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+              <div className="hidden md:flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
                 <button
                   onClick={() => setCurrentView('owner')}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
@@ -82,7 +80,7 @@ export default function Navbar({ currentView, setCurrentView}) {
 
             {/* User Profile Tag */}
             <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-              <div className="text-right hidden lg:block">
+              <div className="text-right hidden sm:block">
                 <div className="text-xs font-semibold text-slate-900 leading-tight">
                   {user?.name}
                 </div>
@@ -107,6 +105,7 @@ export default function Navbar({ currentView, setCurrentView}) {
             </div>
           </div>
         </div>
+      </div>
     </header>
   );
 }
