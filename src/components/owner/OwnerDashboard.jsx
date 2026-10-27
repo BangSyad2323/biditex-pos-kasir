@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   BarChart3,
+  TrendingUp,
   UtensilsCrossed,
   Users,
   Settings,
@@ -13,6 +14,7 @@ import MenuManagement from './MenuManagement';
 import CashierManagement from './CashierManagement';
 import StoreSettings from './StoreSettings';
 import ShiftHistory from './ShiftHistory';
+import AnalyticsScreen from './AnalyticsScreen';
 
 export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail, activeTab = 'reports', setActiveTab }) {
   const [internalTab, setInternalTab] = useState('reports');
@@ -21,6 +23,7 @@ export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail, activeTab
 
   const navItems = [
     { id: 'reports', label: 'Laporan & Laba Bersih', icon: BarChart3 },
+    { id: 'analytics', label: 'Grafik & Analitik', icon: TrendingUp },
     { id: 'menu', label: 'Menu & Katalog HPP', icon: UtensilsCrossed },
     { id: 'cashiers', label: 'Kelola Staf Kasir', icon: Users },
     { id: 'settings', label: 'Pengaturan Toko', icon: Settings },
@@ -57,6 +60,7 @@ export default function OwnerDashboard({ onOpenPOS, onOpenOrderDetail, activeTab
       {/* Main Tab Content */}
       <div className="transition-all duration-200">
         {currentTab === 'reports' && <FinancialReports onOpenOrderDetail={onOpenOrderDetail} />}
+        {currentTab === 'analytics' && <AnalyticsScreen />}
         {currentTab === 'menu' && <MenuManagement />}
         {currentTab === 'cashiers' && <CashierManagement />}
         {currentTab === 'settings' && <StoreSettings />}

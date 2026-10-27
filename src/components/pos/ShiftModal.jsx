@@ -213,7 +213,7 @@ export default function ShiftModal({ isOpen, onClose, onShiftUpdated }) {
         ) : (
           /* FORM TUTUP SHIFT */
           <form onSubmit={handleCloseShift} className="p-5 space-y-4">
-            {/* Live shift brief */}
+            {/* Live shift brief — Rincian Transparan Kalkulasi Laci */}
             <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
               <div className="flex justify-between text-slate-500">
                 <span>Dibuka Sejak:</span>
@@ -222,23 +222,38 @@ export default function ShiftModal({ isOpen, onClose, onShiftUpdated }) {
                 </span>
               </div>
               <div className="flex justify-between text-slate-500">
-                <span>Modal Awal Kasir:</span>
+                <span>Modal Awal Laci:</span>
                 <span className="font-semibold text-slate-800">
                   Rp {Number(activeShift.starting_cash).toLocaleString('id-ID')}
                 </span>
               </div>
-              <div className="flex justify-between text-slate-500">
-                <span>Penjualan Tunai ({activeShift.current_orders_count || 0} nota):</span>
-                <span className="font-semibold text-slate-800">
+              <div className="flex justify-between text-emerald-700">
+                <span>+ Penjualan Tunai (Cash):</span>
+                <span className="font-semibold">
                   +Rp {Number(activeShift.current_cash_sales || 0).toLocaleString('id-ID')}
                 </span>
               </div>
-              <div className="flex justify-between text-amber-900 font-bold pt-1 border-t border-slate-200">
-                <span>Ekspektasi Fisik di Laci:</span>
+              {Number(activeShift.current_qris_sales || 0) > 0 && (
+                <div className="flex justify-between text-blue-600">
+                  <span>Penjualan QRIS (Non-Tunai):</span>
+                  <span className="font-semibold">
+                    Rp {Number(activeShift.current_qris_sales || 0).toLocaleString('id-ID')}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between text-slate-500 text-[10px] italic">
+                <span>Total Transaksi ({activeShift.current_orders_count || 0} nota):</span>
+                <span>Rp {Number(activeShift.current_total_sales || 0).toLocaleString('id-ID')}</span>
+              </div>
+              <div className="flex justify-between text-amber-900 font-bold pt-1.5 border-t border-slate-200">
+                <span>▶ Ekspektasi Fisik di Laci:</span>
                 <span>
                   Rp {(Number(activeShift.starting_cash) + Number(activeShift.current_cash_sales || 0)).toLocaleString('id-ID')}
                 </span>
               </div>
+              <p className="text-[10px] text-slate-400 italic">
+                * Ekspektasi = Modal Awal + Penjualan Tunai saja (QRIS tidak masuk laci fisik)
+              </p>
             </div>
 
             <div>

@@ -75,5 +75,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Laporan Keuangan, Omzet, & Laba Bersih
         Route::get('/reports/dashboard', [ReportController::class, 'dashboard']);
+        Route::get('/reports/sales-chart', [ReportController::class, 'salesChart']);
     });
 });

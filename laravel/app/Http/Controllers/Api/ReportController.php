@@ -66,7 +66,6 @@ class ReportController extends Controller
         // Payment breakdown in Date Range
         $cashTotal = (float) (clone $baseQuery)->where('payment_method', 'cash')->sum('total_amount');
         $qrisTotal = (float) (clone $baseQuery)->where('payment_method', 'qris')->sum('total_amount');
-        $debitTotal = (float) (clone $baseQuery)->where('payment_method', 'debit')->sum('total_amount');
 
         // Order type breakdown in Date Range
         $dineInCount = (clone $baseQuery)->where('order_type', 'dine_in')->count();
@@ -96,7 +95,6 @@ class ReportController extends Controller
             'payment_breakdown'     => [
                 'cash'  => $cashTotal,
                 'qris'  => $qrisTotal,
-                'debit' => $debitTotal,
             ],
             'order_type_breakdown'  => [
                 'dine_in'  => $dineInCount,
@@ -112,7 +110,73 @@ class ReportController extends Controller
                 'to'           => $paginatedOrders->lastItem(),
             ],
         ]);
+    }
 
+    /**
+     * Sales chart data for analytics screen.
+     * Returns an array of { label, total, count } grouped by the requested period.
+     * Parameters:
+     *   - period: daily | monthly | yearly | custom (default daily)
+     *   - start_date, end_date: required for custom period (Y-m-d format)
+     */
+    public function salesChart(Request $request)
+    {
+        $tenantId = $request->user()->tenant_id;
+        $period = $request->input('period', 'daily');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        // Base query filtered by tenant
+        $query = Order::where('tenant_id', $tenantId);
+
+        // Apply date range if provided (custom or other periods can also filter)
+        if ($startDate) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        // Determine grouping expression based on period
+        switch ($period) {
+            case 'monthly':
+                $groupExpr = "DATE_FORMAT(created_at, '%Y-%m')";
+                $labelFormat = 'Y-m';
+                break;
+            case 'yearly':
+                $groupExpr = "YEAR(created_at)";
+                $labelFormat = 'Y';
+                break;
+            case 'custom':
+                // For custom we still group by day unless the range spans many months – keep daily granularity
+                $groupExpr = "DATE(created_at)";
+                $labelFormat = 'Y-m-d';
+                break;
+            case 'daily':
+            default:
+                $groupExpr = "DATE(created_at)";
+                $labelFormat = 'Y-m-d';
+                break;
+        }
+
+        $data = $query
+            ->selectRaw("$groupExpr as label")
+            ->selectRaw('SUM(total_amount) as total')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('label')
+            ->orderBy('label', 'ASC')
+            ->get()
+            ->map(function ($item) {
+                // Ensure numeric types are cast correctly
+                return [
+                    'label' => $item->label,
+                    'total' => (float) $item->total,
+                    'count' => (int) $item->count,
+                ];
+            })
+            ->toArray();
+
+        return response()->json(['data' => $data]);
     }
 
 }

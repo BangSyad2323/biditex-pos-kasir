@@ -10,7 +10,6 @@ import {
   FileText, 
   Award,
   RefreshCw,
-  CreditCard,
   QrCode,
   Banknote,
   Utensils,
@@ -380,7 +379,7 @@ export default function FinancialReports({ onOpenOrderDetail }) {
                   <span>Tunai (Cash)</span>
                 </div>
                 <span className="text-xs font-bold text-emerald-900">
-                  Rp {Number(payment_breakdown.cash).toLocaleString('id-ID')}
+                  Rp {Number(payment_breakdown?.cash || 0).toLocaleString('id-ID')}
                 </span>
               </div>
 
@@ -390,17 +389,7 @@ export default function FinancialReports({ onOpenOrderDetail }) {
                   <span>QRIS Non-Tunai</span>
                 </div>
                 <span className="text-xs font-bold text-blue-900">
-                  Rp {Number(payment_breakdown.qris).toLocaleString('id-ID')}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-indigo-50/60 border border-indigo-100">
-                <div className="flex items-center gap-2 text-xs font-semibold text-indigo-900">
-                  <CreditCard className="w-4 h-4 text-indigo-600" />
-                  <span>Kartu Debit/Kredit</span>
-                </div>
-                <span className="text-xs font-bold text-indigo-900">
-                  Rp {Number(payment_breakdown.debit).toLocaleString('id-ID')}
+                  Rp {Number(payment_breakdown?.qris || 0).toLocaleString('id-ID')}
                 </span>
               </div>
             </div>

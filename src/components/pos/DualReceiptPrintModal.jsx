@@ -171,7 +171,7 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
           ) : (
             <div className="flex justify-between font-semibold">
               <span>Status:</span>
-              <span>LUNAS (NON-TUNAI)</span>
+              <span>LUNAS (QRIS)</span>
             </div>
           )}
         </div>

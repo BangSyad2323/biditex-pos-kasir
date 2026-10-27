@@ -176,7 +176,7 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
             ) : (
               <div className="flex justify-between text-emerald-700 font-semibold">
                 <span>Status:</span>
-                <span>LUNAS (NON-TUNAI)</span>
+                <span>LUNAS (QRIS)</span>
               </div>
             )}
           </div>

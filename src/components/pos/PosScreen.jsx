@@ -8,7 +8,6 @@ import {
   Plus, 
   Minus, 
   Trash2, 
-  CreditCard, 
   QrCode, 
   Banknote, 
   History, 
@@ -27,6 +26,7 @@ import CustomerReceiptModal from './CustomerReceiptModal';
 import KitchenReceiptModal from './KitchenReceiptModal';
 import CashierHistoryModal from './CashierHistoryModal';
 import DualReceiptPrintModal from './DualReceiptPrintModal';
+import StaticQrisCard from './StaticQrisCard';
 
 
 export default function PosScreen() {
@@ -48,7 +48,7 @@ export default function PosScreen() {
 
   // Payment Modal State
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' | 'qris' | 'debit'
+  const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' | 'qris'
   const [cashGiven, setCashGiven] = useState('');
   const [submittingOrder, setSubmittingOrder] = useState(false);
 
@@ -634,20 +634,20 @@ export default function PosScreen() {
         </div>
       </div>
 
-      {/* MODAL 1: Payment Checkout Modal (Cash / QRIS / Debit + Kalkulasi Kembalian) */}
+      {/* MODAL 1: Payment Checkout Modal (Cash / QRIS Statis) */}
       {showPaymentModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
               <h3 className="font-bold text-slate-900 text-sm">Pembayaran Pesanan</h3>
               <button onClick={() => setShowPaymentModal(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-4 overflow-y-auto">
               {/* Total Due Banner */}
-              <div className="p-4 rounded-xl bg-slate-900 text-white text-center">
+              <div className="p-3.5 rounded-xl bg-slate-900 text-white text-center">
                 <span className="text-xs uppercase tracking-wider text-slate-400">Total Pembayaran</span>
                 <div className="text-2xl font-black font-sans text-amber-400 mt-0.5">
                   Rp {Number(grandTotal).toLocaleString('id-ID')}
@@ -657,16 +657,16 @@ export default function PosScreen() {
                 </div>
               </div>
 
-              {/* Payment Method Selector */}
+              {/* Payment Method Selector (Hanya Tunai & QRIS) */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">Pilih Metode Pembayaran</label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button
                     type="button"
                     onClick={() => setPaymentMethod('cash')}
                     className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
                       paymentMethod === 'cash'
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-500/20'
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -679,25 +679,12 @@ export default function PosScreen() {
                     onClick={() => setPaymentMethod('qris')}
                     className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
                       paymentMethod === 'qris'
-                        ? 'border-blue-500 bg-blue-50 text-blue-800'
+                        ? 'border-blue-500 bg-blue-50 text-blue-800 ring-2 ring-blue-500/20'
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     <QrCode className="w-5 h-5 text-blue-600" />
-                    <span>QRIS</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('debit')}
-                    className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
-                      paymentMethod === 'debit'
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-800'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <CreditCard className="w-5 h-5 text-indigo-600" />
-                    <span>Debit / EDC</span>
+                    <span>QRIS (Statis)</span>
                   </button>
                 </div>
               </div>
@@ -751,12 +738,12 @@ export default function PosScreen() {
                   </div>
                 </div>
               ) : (
-                <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-800 text-center">
-                  <p className="font-semibold mb-1">Pembayaran Non-Tunai ({paymentMethod.toUpperCase()})</p>
-                  <p className="text-[11px] text-blue-600">
-                    Pastikan pembayaran senilai <strong>Rp {Number(grandTotal).toLocaleString('id-ID')}</strong> telah berhasil divalidasi pada terminal QRIS/Mesin EDC.
-                  </p>
-                </div>
+                /* QRIS Statis View */
+                <StaticQrisCard
+                  tenant={tenant}
+                  settings={settings}
+                  grandTotal={grandTotal}
+                />
               )}
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">

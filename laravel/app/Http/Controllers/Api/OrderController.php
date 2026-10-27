@@ -87,7 +87,7 @@ class OrderController extends Controller
             'order_type'     => 'required|in:dine_in,takeaway',
             'customer_name'  => 'nullable|string|max:100',
             'table_number'   => 'nullable|string|max:20',
-            'payment_method' => 'required|in:cash,qris,debit',
+            'payment_method' => 'required|in:cash,qris',
             'cash_amount'    => 'nullable|numeric|min:0',
             'notes'          => 'nullable|string',
             'items'          => 'required|array|min:1',
