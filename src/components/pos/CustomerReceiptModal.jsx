@@ -1,5 +1,5 @@
 import React from 'react';
-import { Printer, X, Check, UtensilsCrossed } from 'lucide-react';
+import { Printer, X, Globe, Utensils, Package } from 'lucide-react';
 
 export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, settings }) {
   if (!isOpen || !order) return null;
@@ -8,8 +8,13 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
     window.print();
   };
 
+  const isOnline = order.order_type === 'online';
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4" id="customer-receipt-modal">
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+      id="customer-receipt-modal"
+    >
       <style>{`
         @media print {
           html, body {
@@ -38,9 +43,12 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
             border: none !important;
             max-height: unset !important;
           }
-          .print\\:hidden { display: none !important; }
+          .print\\:hidden {
+            display: none !important;
+          }
         }
       `}</style>
+
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Top Actions */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 print:hidden">
@@ -55,15 +63,21 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
               <Printer className="w-3.5 h-3.5" />
               <span>Cetak</span>
             </button>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600 cursor-pointer p-1">
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Printable Receipt Paper */}
-        <div id="customer-receipt" className="p-6 overflow-y-auto font-mono text-[11px] text-slate-800 leading-tight space-y-3 bg-white">
-          {/* Header */}
+        <div
+          id="customer-receipt"
+          className="p-6 overflow-y-auto font-mono text-[11px] text-slate-800 leading-tight space-y-3 bg-white"
+        >
+          {/* Header Toko */}
           <div className="text-center space-y-1">
             <h2 className="font-bold text-base font-sans text-slate-900 tracking-tight">
               {tenant?.name || 'Restoran Berkah Nusantara'}
@@ -75,7 +89,7 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
 
           <div className="border-t border-dashed border-slate-300 my-2"></div>
 
-          {/* Meta Info */}
+          {/* Meta Info Transaksi */}
           <div className="space-y-0.5 text-[10px] text-slate-600">
             <div className="flex justify-between">
               <span>No. Nota:</span>
@@ -84,28 +98,48 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
             <div className="flex justify-between">
               <span>Waktu:</span>
               <span>
-                {new Date(order.created_at).toLocaleDateString('id-ID')} {new Date(order.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                {new Date(order.created_at).toLocaleDateString('id-ID')}{' '}
+                {new Date(order.created_at).toLocaleTimeString('id-ID', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
               </span>
             </div>
             <div className="flex justify-between">
               <span>Kasir:</span>
               <span>{order.cashier_name}</span>
             </div>
+
+            {/* Pelanggan / Driver */}
             <div className="flex justify-between">
-              <span>Pelanggan:</span>
-              <span>{order.customer_name}</span>
+              <span>{isOnline ? 'Driver / Pemesan:' : 'Pelanggan:'}</span>
+              <span className="font-bold text-slate-900">{order.customer_name}</span>
             </div>
+
+            {/* ID Resi Pesanan Online */}
+            {isOnline && order.online_order_id && (
+              <div className="flex justify-between text-blue-900 font-bold">
+                <span>No. Resi / Order ID:</span>
+                <span>{order.online_order_id}</span>
+              </div>
+            )}
+
+            {/* Tipe Layanan */}
             <div className="flex justify-between">
               <span>Layanan:</span>
               <span className="font-bold uppercase text-slate-900">
-                {order.order_type === 'dine_in' ? `DINE-IN ${order.table_number ? `(Meja ${order.table_number})` : ''}` : 'TAKEAWAY (BUNGKUS)'}
+                {order.order_type === 'dine_in'
+                  ? `DINE-IN ${order.table_number ? `(Meja ${order.table_number})` : ''}`
+                  : order.order_type === 'takeaway'
+                  ? 'TAKEAWAY (BUNGKUS)'
+                  : `ONLINE (${order.online_channel || 'DELIVERY'})`}
               </span>
             </div>
           </div>
 
           <div className="border-t border-dashed border-slate-300 my-2"></div>
 
-          {/* Items */}
+          {/* Items Pesanan */}
           <div className="space-y-2">
             {order.items?.map((item, idx) => (
               <div key={idx} className="space-y-0.5">
@@ -114,7 +148,9 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
                   <span>Rp {Number(item.subtotal).toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-slate-500">
-                  <span>{item.quantity}x @ Rp {Number(item.price).toLocaleString('id-ID')}</span>
+                  <span>
+                    {item.quantity}x @ Rp {Number(item.price).toLocaleString('id-ID')}
+                  </span>
                   {item.portion && item.portion !== 'Standard' && (
                     <span className="italic">[{item.portion}]</span>
                   )}
@@ -130,24 +166,27 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
 
           <div className="border-t border-dashed border-slate-300 my-2"></div>
 
-          {/* Totals */}
+          {/* Rincian Subtotal & Total */}
           <div className="space-y-1 text-xs">
             <div className="flex justify-between">
               <span>Subtotal:</span>
               <span>Rp {Number(order.subtotal).toLocaleString('id-ID')}</span>
             </div>
+
             {order.service_fee > 0 && (
               <div className="flex justify-between text-[10px] text-slate-600">
                 <span>Biaya Layanan Dine-In:</span>
                 <span>Rp {Number(order.service_fee).toLocaleString('id-ID')}</span>
               </div>
             )}
+
             {order.packaging_fee > 0 && (
               <div className="flex justify-between text-[10px] text-slate-600">
                 <span>Biaya Kemasan Takeaway:</span>
                 <span>Rp {Number(order.packaging_fee).toLocaleString('id-ID')}</span>
               </div>
             )}
+
             <div className="flex justify-between font-bold text-sm text-slate-900 pt-1 border-t border-slate-200">
               <span>TOTAL:</span>
               <span>Rp {Number(order.total_amount).toLocaleString('id-ID')}</span>
@@ -156,12 +195,17 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
 
           <div className="border-t border-dashed border-slate-300 my-2"></div>
 
-          {/* Payment */}
+          {/* Info Pembayaran */}
           <div className="space-y-0.5 text-[10px]">
             <div className="flex justify-between">
               <span>Metode:</span>
-              <span className="uppercase font-semibold">{order.payment_method}</span>
+              <span className="uppercase font-semibold">
+                {isOnline
+                  ? `${order.online_channel || 'ONLINE'} (NON-TUNAI)`
+                  : order.payment_method}
+              </span>
             </div>
+
             {order.payment_method === 'cash' ? (
               <>
                 <div className="flex justify-between">
@@ -173,6 +217,11 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
                   <span>Rp {Number(order.change_amount).toLocaleString('id-ID')}</span>
                 </div>
               </>
+            ) : isOnline || order.payment_method === 'online_platform' ? (
+              <div className="flex justify-between text-blue-800 font-bold">
+                <span>Status:</span>
+                <span>LUNAS (SALDO PLATFORM)</span>
+              </div>
             ) : (
               <div className="flex justify-between text-emerald-700 font-semibold">
                 <span>Status:</span>
@@ -183,9 +232,12 @@ export default function CustomerReceiptModal({ isOpen, onClose, order, tenant, s
 
           <div className="border-t border-dashed border-slate-300 my-2"></div>
 
-          {/* Footer message from store settings */}
+          {/* Footer Struk */}
           <div className="text-center text-[10px] text-slate-500 pt-1 space-y-1">
-            <p>{tenant?.receipt_footer || 'Terima kasih atas kunjungan Anda! Selamat menikmati hidangan kami.'}</p>
+            <p>
+              {tenant?.receipt_footer ||
+                'Terima kasih atas kunjungan Anda! Selamat menikmati hidangan kami.'}
+            </p>
             <p className="text-[9px] text-slate-400">KasirKu Digital System</p>
           </div>
         </div>

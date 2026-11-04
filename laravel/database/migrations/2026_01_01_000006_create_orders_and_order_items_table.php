@@ -16,23 +16,27 @@ return new class extends Migration
             $table->string('cashier_name', 100);
             $table->string('invoice_number', 50)->unique();
             $table->integer('queue_number');
-            $table->enum('order_type', ['dine_in', 'takeaway']);
+
+            // Tipe Pesanan & Channel Online
+            $table->enum('order_type', ['dine_in', 'takeaway', 'online'])->default('dine_in');
+            $table->string('online_channel', 50)->nullable(); // contoh: 'ShopeeFood', 'GoFood'
+            $table->string('online_order_id', 100)->nullable(); // contoh: '#SPF-9812'
+
             $table->string('customer_name', 100)->default('Pelanggan Walk-In');
             $table->string('table_number', 20)->nullable();
-            
+
             // Finansial
             $table->decimal('subtotal', 14, 2);
             $table->decimal('total_cost_price', 14, 2); // Total HPP
             $table->decimal('service_fee', 14, 2)->default(0.00);
             $table->decimal('packaging_fee', 14, 2)->default(0.00);
             $table->decimal('total_amount', 14, 2);
-            $table->decimal('gross_profit', 14, 2); // total_amount - total_cost_price
-            
+            $table->decimal('gross_profit', 14, 2);
+
             // Pembayaran
-            $table->enum('payment_method', ['cash', 'qris', 'debit']);
-            $table->decimal('cash_amount', 14, 2)->default(0.00); // Uang yang diterima jika tunai
-            $table->decimal('change_amount', 14, 2)->default(0.00); // Kembalian jika tunai
-            
+            $table->enum('payment_method', ['cash', 'qris', 'debit', 'online_platform'])->default('cash');
+            $table->decimal('cash_amount', 14, 2)->default(0.00);
+            $table->decimal('change_amount', 14, 2)->default(0.00);
             $table->text('notes')->nullable();
             $table->timestamps();
         });

@@ -18,13 +18,17 @@ class StoreSetting extends Model
         'is_takeaway_enabled',
         'takeaway_fee_type',
         'takeaway_fee_value',
+        'is_online_integration_enabled', // Added
+        'online_channels',               // Added
     ];
 
     protected $casts = [
-        'is_dine_in_enabled'  => 'boolean',
-        'is_takeaway_enabled' => 'boolean',
-        'dine_in_fee_value'   => 'decimal:2',
-        'takeaway_fee_value'  => 'decimal:2',
+        'is_dine_in_enabled'             => 'boolean',
+        'is_takeaway_enabled'            => 'boolean',
+        'is_online_integration_enabled'  => 'boolean',    // Added
+        'online_channels'                => 'array',      // CRITICAL: Wajib 'array' agar tersimpan otomatis sebagai JSON di DB
+        'dine_in_fee_value'              => 'decimal:2',
+        'takeaway_fee_value'             => 'decimal:2',
     ];
 
     public function tenant(): BelongsTo

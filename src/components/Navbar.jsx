@@ -76,17 +76,7 @@ export default function Navbar({ currentView, setCurrentView }) {
                   <Laptop className="w-3.5 h-3.5" />
                   <span>Buka POS</span>
                 </button>
-                <button
-                  onClick={() => setCurrentView('analytics')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    currentView === 'analytics'
-                      ? 'bg-emerald-500 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Grafik & Analitik</span>
-                </button>
+               
               </div>
             )}
 

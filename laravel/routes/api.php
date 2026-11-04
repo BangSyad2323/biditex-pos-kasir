@@ -9,13 +9,12 @@ use App\Http\Controllers\Api\ShiftController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\ExpenseController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes - KasirKu Digital (Laravel 12 + Laravel Sanctum)
 |--------------------------------------------------------------------------
-| Seluruh endpoint REST API terlindungi oleh Laravel Sanctum tokens,
-| dengan role-based authorization (Owner Master Access & Kasir POS).
 */
 
 // ======================= PUBLIC ROUTES =======================
@@ -25,15 +24,14 @@ Route::prefix('auth')->group(function () {
 
 // ================== PROTECTED SANCTUM ROUTES =================
 Route::middleware('auth:sanctum')->group(function () {
-    
     // Auth context & token revocation
     Route::get('/auth/user', [AuthController::class, 'user'])->name('api.auth.user');
     Route::post('/auth/logout', [AuthController::class, 'logout'])->name('api.auth.logout');
 
-    // Kategori Menu (Read by all, CRUD by Owner)
+    // Kategori Menu
     Route::get('/categories', [CategoryController::class, 'index']);
-    
-    // Katalog Produk & Menu (Read by all, CRUD by Owner)
+
+    // Katalog Produk & Menu
     Route::get('/products', [ProductController::class, 'index']);
 
     // Manajemen Shift Kasir (Buka/Tutup Kasir)
@@ -51,7 +49,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [OrderController::class, 'show']);
     });
 
-    // Profile & Pengaturan Toko (Read by cashier & owner)
+    // Pencatatan Kas Keluar / Pengeluaran (Bisa diakses Kasir & Owner)
+    Route::prefix('expenses')->group(function () {
+        Route::get('/', [ExpenseController::class, 'index']);
+        Route::post('/', [ExpenseController::class, 'store']);
+        Route::delete('/{id}', [ExpenseController::class, 'destroy']);
+    });
+
+    // Profile & Pengaturan Toko
     Route::get('/settings', [SettingController::class, 'show']);
 
     // ================= OWNER RESTRICTED ROUTES =================
@@ -65,7 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/categories/{id}', [CategoryController::class, 'update']);
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
-        // Kelola Produk & HPP (Create, Update, Delete)
+        // Kelola Produk (Create, Update, Delete)
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);

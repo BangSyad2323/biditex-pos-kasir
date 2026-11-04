@@ -19,6 +19,8 @@ class Order extends Model
         'invoice_number',
         'queue_number',
         'order_type',
+        'online_channel',
+        'online_order_id',
         'customer_name',
         'table_number',
         'subtotal',
@@ -34,14 +36,14 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'subtotal'         => 'decimal:2',
+        'subtotal' => 'decimal:2',
         'total_cost_price' => 'decimal:2',
-        'service_fee'      => 'decimal:2',
-        'packaging_fee'    => 'decimal:2',
-        'total_amount'     => 'decimal:2',
-        'gross_profit'     => 'decimal:2',
-        'cash_amount'      => 'decimal:2',
-        'change_amount'    => 'decimal:2',
+        'service_fee' => 'decimal:2',
+        'packaging_fee' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'gross_profit' => 'decimal:2',
+        'cash_amount' => 'decimal:2',
+        'change_amount' => 'decimal:2',
     ];
 
     public function shift(): BelongsTo

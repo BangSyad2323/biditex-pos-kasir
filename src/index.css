@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+html, body {
+  /* Mencegah efek membal/ketarik saat di-scroll di HP */
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}

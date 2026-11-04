@@ -1,10 +1,21 @@
-import React from 'react';
+import React from "react";
 
-export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, settings }) {
+export default function DualReceiptPrintModal({
+  isOpen,
+  onClose,
+  order,
+  tenant,
+  settings,
+}) {
   if (!isOpen || !order) return null;
 
+  const isOnline = order.order_type === "online";
+
   return (
-    <div id="dual-receipt-print-wrapper" className="hidden print:block print:fixed print:inset-0 print:bg-white print:z-[9999]">
+    <div
+      id="dual-receipt-print-wrapper"
+      className="hidden print:block print:fixed print:inset-0 print:bg-white print:z-[9999]"
+    >
       <style>{`
         @media print {
           /* Reset page */
@@ -15,18 +26,15 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-
           /* Hide EVERYTHING by default */
           body * {
             visibility: hidden !important;
           }
-
           /* Show ONLY the dual receipt wrapper and ALL its descendants */
           #dual-receipt-print-wrapper,
           #dual-receipt-print-wrapper * {
             visibility: visible !important;
           }
-
           /* Position the receipt wrapper to fill the page */
           #dual-receipt-print-wrapper {
             display: block !important;
@@ -38,13 +46,11 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
             padding: 0 !important;
             background: white !important;
           }
-
           /* Page break between customer and kitchen receipts */
           .receipt-page-break {
             page-break-after: always !important;
             break-after: page !important;
           }
-
           /* Ensure modals, overlays, nav bars, etc don't interfere */
           .fixed:not(#dual-receipt-print-wrapper),
           [class*="bottom-nav"],
@@ -55,45 +61,77 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
         }
       `}</style>
 
-
-      {/* SECTION 1: STRUK PELANGGAN (CUSTOMER RECEIPT) */}
+      {/* ========================================================================= */}
+      {/* SECTION 1: STRUK PELANGGAN (CUSTOMER RECEIPT)                              */}
+      {/* ========================================================================= */}
       <div className="receipt-page-break p-4 max-w-[80mm] mx-auto font-mono text-[11px] text-slate-900 leading-tight space-y-3 bg-white">
-        {/* Header */}
+        {/* Header Toko */}
+
+        {isOnline && order.online_order_id && (
+            <div className="flex justify-between font-bold text-slate-900">
+          
+              <span>{order.online_order_id}</span>
+            </div>
+          )}
         <div className="text-center space-y-1">
           <h2 className="font-bold text-sm font-sans text-slate-900 tracking-tight">
-            {tenant?.name || 'Restoran Berkah Nusantara'}
+            {tenant?.name || "Restoran Berkah Nusantara"}
           </h2>
-          <p className="text-[10px] text-slate-600">{tenant?.branch || 'Cabang Utama'}</p>
-          {tenant?.address && <p className="text-[10px] text-slate-600">{tenant.address}</p>}
-          {tenant?.phone && <p className="text-[10px] text-slate-600">Telp: {tenant.phone}</p>}
+          <p className="text-[10px] text-slate-600">
+            {tenant?.branch || "Cabang Utama"}
+          </p>
+          {tenant?.address && (
+            <p className="text-[10px] text-slate-600">{tenant.address}</p>
+          )}
+          {tenant?.phone && (
+            <p className="text-[10px] text-slate-600">Telp: {tenant.phone}</p>
+          )}
         </div>
 
         <div className="border-t border-dashed border-slate-400 my-2"></div>
+
+        
 
         {/* Meta Info */}
         <div className="space-y-0.5 text-[10px] text-slate-700">
           <div className="flex justify-between">
             <span>No. Nota:</span>
-            <span className="font-bold text-slate-900">{order.invoice_number}</span>
+            <span className="font-bold text-slate-900">
+              {order.invoice_number}
+            </span>
           </div>
           <div className="flex justify-between">
             <span>Waktu:</span>
             <span>
-              {new Date(order.created_at).toLocaleDateString('id-ID')} {new Date(order.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+              {new Date(order.created_at).toLocaleDateString("id-ID")}{" "}
+              {new Date(order.created_at).toLocaleTimeString("id-ID", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </span>
           </div>
           <div className="flex justify-between">
             <span>Kasir:</span>
             <span>{order.cashier_name}</span>
           </div>
+
           <div className="flex justify-between">
-            <span>Pelanggan:</span>
-            <span>{order.customer_name}</span>
+            <span>{isOnline ? "Driver / Pemesan:" : "Pelanggan:"}</span>
+            <span className="font-bold text-slate-900">
+              {order.customer_name}
+            </span>
           </div>
+
+          
+
           <div className="flex justify-between">
             <span>Layanan:</span>
             <span className="font-bold uppercase text-slate-900">
-              {order.order_type === 'dine_in' ? `DINE-IN ${order.table_number ? `(Meja ${order.table_number})` : ''}` : 'TAKEAWAY (BUNGKUS)'}
+              {order.order_type === "dine_in"
+                ? `DINE-IN ${order.table_number ? `(Meja ${order.table_number})` : ""}`
+                : order.order_type === "takeaway"
+                  ? "TAKEAWAY (BUNGKUS)"
+                  : `ONLINE (${order.online_channel || "DELIVERY"})`}
             </span>
           </div>
         </div>
@@ -106,11 +144,14 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
             <div key={idx} className="space-y-0.5">
               <div className="flex justify-between font-semibold">
                 <span>{item.name}</span>
-                <span>Rp {Number(item.subtotal).toLocaleString('id-ID')}</span>
+                <span>Rp {Number(item.subtotal).toLocaleString("id-ID")}</span>
               </div>
               <div className="flex justify-between text-[10px] text-slate-600">
-                <span>{item.quantity}x @ Rp {Number(item.price).toLocaleString('id-ID')}</span>
-                {item.portion && item.portion !== 'Standard' && (
+                <span>
+                  {item.quantity}x @ Rp{" "}
+                  {Number(item.price).toLocaleString("id-ID")}
+                </span>
+                {item.portion && item.portion !== "Standard" && (
                   <span className="italic">[{item.portion}]</span>
                 )}
               </div>
@@ -129,23 +170,30 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
         <div className="space-y-1 text-xs">
           <div className="flex justify-between">
             <span>Subtotal:</span>
-            <span>Rp {Number(order.subtotal).toLocaleString('id-ID')}</span>
+            <span>Rp {Number(order.subtotal).toLocaleString("id-ID")}</span>
           </div>
+
           {order.service_fee > 0 && (
             <div className="flex justify-between text-[10px] text-slate-700">
               <span>Biaya Layanan Dine-In:</span>
-              <span>Rp {Number(order.service_fee).toLocaleString('id-ID')}</span>
+              <span>
+                Rp {Number(order.service_fee).toLocaleString("id-ID")}
+              </span>
             </div>
           )}
+
           {order.packaging_fee > 0 && (
             <div className="flex justify-between text-[10px] text-slate-700">
               <span>Biaya Kemasan Takeaway:</span>
-              <span>Rp {Number(order.packaging_fee).toLocaleString('id-ID')}</span>
+              <span>
+                Rp {Number(order.packaging_fee).toLocaleString("id-ID")}
+              </span>
             </div>
           )}
+
           <div className="flex justify-between font-bold text-sm text-slate-900 pt-1 border-t border-slate-300">
             <span>TOTAL:</span>
-            <span>Rp {Number(order.total_amount).toLocaleString('id-ID')}</span>
+            <span>Rp {Number(order.total_amount).toLocaleString("id-ID")}</span>
           </div>
         </div>
 
@@ -155,19 +203,33 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
         <div className="space-y-0.5 text-[10px]">
           <div className="flex justify-between">
             <span>Metode:</span>
-            <span className="uppercase font-semibold">{order.payment_method}</span>
+            <span className="uppercase font-semibold">
+              {isOnline
+                ? `${order.online_channel || "ONLINE"} (NON-TUNAI)`
+                : order.payment_method}
+            </span>
           </div>
-          {order.payment_method === 'cash' ? (
+
+          {order.payment_method === "cash" ? (
             <>
               <div className="flex justify-between">
                 <span>Tunai Diterima:</span>
-                <span>Rp {Number(order.cash_amount).toLocaleString('id-ID')}</span>
+                <span>
+                  Rp {Number(order.cash_amount).toLocaleString("id-ID")}
+                </span>
               </div>
               <div className="flex justify-between font-bold text-slate-900">
                 <span>Kembalian:</span>
-                <span>Rp {Number(order.change_amount).toLocaleString('id-ID')}</span>
+                <span>
+                  Rp {Number(order.change_amount).toLocaleString("id-ID")}
+                </span>
               </div>
             </>
+          ) : isOnline || order.payment_method === "online_platform" ? (
+            <div className="flex justify-between font-bold text-slate-900">
+              <span>Status:</span>
+              <span>LUNAS (SALDO PLATFORM)</span>
+            </div>
           ) : (
             <div className="flex justify-between font-semibold">
               <span>Status:</span>
@@ -180,12 +242,17 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
 
         {/* Footer */}
         <div className="text-center text-[10px] text-slate-600 pt-1 space-y-1">
-          <p>{tenant?.receipt_footer || 'Terima kasih atas kunjungan Anda! Selamat menikmati hidangan kami.'}</p>
+          <p>
+            {tenant?.receipt_footer ||
+              "Terima kasih atas kunjungan Anda! Selamat menikmati hidangan kami."}
+          </p>
           <p className="text-[9px] text-slate-500">KasirKu Digital System</p>
         </div>
       </div>
 
-      {/* SECTION 2: STRUK DAPUR (KITCHEN TICKET) */}
+      {/* ========================================================================= */}
+      {/* SECTION 2: STRUK DAPUR (KITCHEN TICKET)                                    */}
+      {/* ========================================================================= */}
       <div className="p-4 max-w-[80mm] mx-auto font-mono text-slate-900 leading-tight space-y-4 bg-white">
         {/* Header Dapur */}
         <div className="text-center pb-2 border-b-2 border-black">
@@ -193,7 +260,7 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
             *** NOTA DAPUR ***
           </div>
           <div className="text-2xl font-black font-sans my-1 tracking-tight">
-            ANTREAN #{order.queue_number || '1'}
+            ANTREAN #{order.queue_number || "1"}
           </div>
           <div className="text-xs text-slate-700">
             Nota: {order.invoice_number}
@@ -203,26 +270,41 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
         {/* Tipe Pesanan */}
         <div className="p-2.5 text-center border-2 border-black">
           <div className="text-base font-black uppercase tracking-wider text-slate-900">
-            {order.order_type === 'dine_in' ? '🍽️ DINE-IN' : '🥡 TAKEAWAY (BUNGKUS)'}
+            {order.order_type === "dine_in"
+              ? "🍽️ DINE-IN"
+              : order.order_type === "takeaway"
+                ? "🥡 TAKEAWAY (BUNGKUS)"
+                : `🛵 ONLINE (${order.online_channel || "DELIVERY"})`}
           </div>
+
           {order.table_number && (
             <div className="text-sm font-bold text-slate-900 mt-1">
               MEJA: {order.table_number}
             </div>
           )}
+
+          {isOnline && order.online_order_id && (
+            <div className="text-xs font-bold text-slate-900 mt-1">
+              RESI: {order.online_order_id}
+            </div>
+          )}
+
           <div className="text-xs text-slate-800 mt-0.5">
-            Pelanggan: {order.customer_name}
+            {isOnline ? "Driver:" : "Pelanggan:"} {order.customer_name}
           </div>
         </div>
 
         <div className="text-[11px] text-slate-700 flex justify-between border-b border-dashed border-slate-400 pb-2">
           <span>Waktu Order:</span>
           <span>
-            {new Date(order.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+            {new Date(order.created_at).toLocaleTimeString("id-ID", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </span>
         </div>
 
-        {/* Menu Items + Qty + Catatan (TANPA HARGA/SUBTOTAL/NOMINAL RUPIAH) */}
+        {/* Menu Items + Qty + Catatan (TANPA NOMINAL HARGA) */}
         <div className="space-y-3">
           <div className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">
             DAFTAR PESANAN MASAKAN:
@@ -237,13 +319,11 @@ export default function DualReceiptPrintModal({ isOpen, onClose, order, tenant, 
                   {item.quantity}x
                 </div>
               </div>
-
-              {item.portion && item.portion !== 'Standard' && (
+              {item.portion && item.portion !== "Standard" && (
                 <div className="text-xs font-semibold text-slate-800">
                   Porsi: {item.portion}
                 </div>
               )}
-
               {item.notes ? (
                 <div className="text-xs font-bold text-slate-900 p-1 border border-black">
                   ⚠️ Catatan: {item.notes}
